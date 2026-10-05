@@ -1,6 +1,10 @@
 ARG FEDORA_VERSION=44
 FROM quay.io/fedora/fedora:${FEDORA_VERSION}
 
+LABEL org.opencontainers.image.description="Base container image for my development environment"
+LABEL org.opencontainers.image.authors="Christian Sutter"
+LABEL org.opencontainers.image.source="https://github.com/csutter/machines"
+
 ARG USERNAME=dev
 ARG UID=1000
 
