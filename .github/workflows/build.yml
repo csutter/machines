@@ -1,0 +1,37 @@
+name: Build container image
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: docker/github-builder/.github/workflows/build.yml@58cb9f5b71b1836d6f690c1e95effdeb9b98cb8a # v1.17.0
+    permissions:
+      contents: read     # fetch the repo
+      packages: write    # push to GHCR
+      id-token: write    # sign attestations via GitHub OIDC
+    with:
+      output: image
+      push: ${{ github.event_name != 'pull_request' }}   # don't push on PR builds
+      context: .
+      file: ./Containerfile
+      platforms: linux/amd64,linux/arm64
+      cache: true
+      set-meta-labels: true
+      meta-images: ghcr.io/csutter/machines-base   # must be lowercase
+      meta-tags: |
+        type=ref,event=branch
+        type=ref,event=pr
+        type=semver,pattern={{version}}
+        type=sha
+    secrets:
+      registry-auths: |
+        - registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
